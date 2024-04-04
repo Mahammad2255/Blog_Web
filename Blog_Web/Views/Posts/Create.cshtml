@@ -1,0 +1,109 @@
+﻿@model PostCreateViewModel
+
+<div class="row">
+    <div class="col-12">
+        <div class="bg-white p-4 mt-4">
+            <h1>Post Create</h1>
+            <form id="postForm" asp-action="Create" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger" ></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Url" class="form-label"></label>
+                    <input asp-for="Url" class="form-control" />
+                    <span asp-validation-for="Url" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Content" class="form-label"></label>
+                    <textarea asp-for="Content" class="form-control"></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="BlogImageFile" class="form-label"></label>
+                    <input type="file" asp-for="BlogImageFile" class="form-control" />
+                    <span asp-validation-for="BlogImageFile" class="text-danger"></span>
+                </div>
+
+                @foreach (var tag in ViewBag.Tags)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input"
+                               name="tagIds"
+                               value="@tag.TagId"
+                               type="checkbox"
+                               id="tag_@tag.TagId"
+                      />
+                        <label class="form-check-label" for="tag_@tag.TagId">
+                            @tag.Text
+                        </label>
+                    </div>
+                }
+               
+
+
+
+                <button id="submitBtn" type="submit" class="btn btn-primary mt-3">Complete</button>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.7/dist/sweetalert2.all.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.7/dist/sweetalert2.min.css"rel="stylesheet">
+
+    <script>
+        $(document).ready(function () {
+            $('#postForm').submit(function (event) {
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: $(this).attr('method'),
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+                    success: function () {
+                        Swal.fire({
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            icon: 'success',
+                            title: 'Post successfully created',
+                            showConfirmButton: true,
+                            didClose: function () {
+                                window.location.href = '/posts/list';
+                            }
+                        });
+                        console.log('Form successfully submitted');
+                    },
+                    error: function () {
+                   
+                    }
+                });
+
+                event.preventDefault();
+            });
+        });
+    </script>
+
+
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" integrity="sha512-VCEWnpOl7PIhbYMcb64pqGZYez41C2uws/M/mDdGPy+vtEJHd9BqbShE4/VNnnZdr7YCPOjd+CBmYca/7WWWCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        tinymce.init({
+            selector: '#Content'
+        })
+    </script>
+
+
+
+
+}

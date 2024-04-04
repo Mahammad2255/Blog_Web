@@ -1,0 +1,106 @@
+﻿@using System.Security.Claims;
+@model PostEditViewModel
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+<div class="row">
+    <div class="col-9">
+        <div class="bg-white p-4 mt-4">
+            <h1>Post Edit</h1>
+          
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="PostId"/>
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Url" class="form-label"></label>
+                    <input asp-for="Url" class="form-control" />
+                    <span asp-validation-for="Url" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    @if(Model.GetImage == null)
+                    {
+                        <img class="pht" src="~/img/@ViewBag.Image" />
+
+                    }
+                    else
+                    {
+                        <img class="pht" src="~/img/@Model.GetImage" />
+
+                    }
+                </div>
+                <div class="mb-3">
+                    <label asp-for="BlogImageFile" class="form-label"></label>
+                    <input type="file" asp-for="BlogImageFile" class="form-control" />
+                    <span asp-validation-for="BlogImageFile" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Content" class="form-label"></label>
+                    <input asp-for="Content" class="form-control" />
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+               
+                @if(User.FindFirstValue(ClaimTypes.Role) == "admin")
+                {
+                    <div class="form-check mb-3">
+                        <input asp-for="isActive" class="form-check-input">
+                        <label asp-for="isActive" class="form-check-label">Approve post</label>
+                            
+                    </div>
+                }
+
+                
+
+
+                <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+    </div>
+    <div class="col-3 mt-5">
+        <div class="bg-white p-4">
+            @foreach (var tag in ViewBag.Tags)
+            {
+                <div class="form-check">
+                    <input class="form-check-input"
+                    name="tagIds"
+                    value="@tag.TagId"
+                    type="checkbox" 
+                    id="tag_@tag.TagId" 
+                    @(Model.Tags.Any(i=>i.TagId == tag.TagId)? "checked" : "")
+                    
+                    />
+                    <label class="form-check-label" for="tag_@tag.TagId">
+                        @tag.Text
+                    </label>
+                </div>
+
+            }
+        </div>
+    </div>
+</div>
+
+</form>
+<style>
+    .pht {
+        width: 300px; 
+        height: auto;
+        max-width: 100%; 
+        max-height: 100%;
+    }
+</style>
+
+
+
+@section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" integrity="sha512-VCEWnpOl7PIhbYMcb64pqGZYez41C2uws/M/mDdGPy+vtEJHd9BqbShE4/VNnnZdr7YCPOjd+CBmYca/7WWWCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        tinymce.init({
+            selector: '#Content'
+        })
+    </script>
+}

@@ -1,0 +1,184 @@
+﻿@model Post
+
+<div class="row mt-2">
+    <div class="col-lg-8">
+        <div class="bg-white p-4">
+            <h1 class="h4 mb-4">@Model.Title</h1>
+            <div class="tags">
+                @foreach (var item in Model.Tags)
+                {
+                    <a href="/posts/tag/@item.Url" style="color: white;" class="badge bg-@item.Color background-@item.Color bg-opacity-10 mb-2 fw-bold">@item.Text</a>
+                }
+            </div>
+         
+            <div class="tags">
+            
+            </div>
+            <img src="~/img/@Model.Image" class="img-fluid rounded" alt="" />
+            <img src="img/@Model.Image" class="img-fluid rounded" alt="">
+
+
+            <ul class="list-inline my-3">
+                <li class="list-inline-item"><i class="fa-regular fa-calendar"></i><span class="ml-2">@Model.PublishedOn.ToString("d")</span></li>
+                <li class="list-inline-item"><i class="fa-regular fa-user"></i><a href="@Url.Action("Profile", "Users", new { username = @Model.User.UserName })" class="ml-2">@Model.User.UserName</a></li>
+               
+
+            </ul>
+
+
+            <hr class="py-3" />
+            <div>
+                @Html.Raw( @Model.Content)
+            </div>
+            <div class="bg-white mt-3">
+                <div class="card border-0">
+                    <div class="card-header pb-0">
+                        <h4 id="commentCount">@Model.Comments.Count() Comment</h4>
+                    </div>
+                    <div class="card-body">
+                       <div id="comments">
+                            @foreach (var comment in Model.Comments)
+                            {
+                              
+                            <div class="my-4 d-flex">
+                               
+                                    <img src="/img/@comment.User.ImagePath" class="avatar float-start me-3" style="width: 50px; height: 50px; object-fit: cover; object-position: center top; border-radius: 5px;" />
+
+
+                                <div class="ml-3">
+                                    <div class="mb-2 d-flex">
+                                            <a href="/Users/Profile?username=@comment.User.UserName" class="user-link">
+                                                <h6 class="me-3">@comment.User.UserName</h6>
+                                            </a>
+                                        <small class="ml-2">@comment.PublishedOn</small>
+
+                                    </div>
+                                    <div class="">
+                                            <p class="mb-3" style="margin-top: -10px;">@comment.Text</p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            }
+                       </div>
+                      
+                        @if (User.Identity!.IsAuthenticated)
+                        {
+                            <hr class="my-4" />
+
+
+
+
+
+
+                            <div class="d-flex align-items-start">
+
+                                @if (!string.IsNullOrEmpty(ViewData["CurrentUserImagePath"] as string))
+                                {
+                                    <img src="/img/@ViewData["CurrentUserImagePath"]" alt="User Image" class="avatar float-start me-3" style="width: 50px; height: 50px; object-fit: cover; object-position: center top; border-radius: 5px;" />
+                                }
+                                <div class="col-lg-10">
+                                    <h4>Add Comment</h4>
+                                    <form action="/posts/AddComment" method="post">
+                                        <input type="hidden" id="PostId" name="PostId" value="@Model.PostId" />
+
+                                        <div class="mb-3">
+                                            <label for="Text" class="form-label">Comment</label>
+                                            <textarea type="text" name="Text" id="Text" rows="3" class="form-control"></textarea>
+
+                                        </div>
+                                        <div class="mb-3">
+                                            <button id="btnComment" type="submit" class="btn btn-primary">Save</button>
+
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                              <div>
+        
+       
+    </div>
+                        }
+                        else
+                        {
+                            <p>You need to log in to comment.</p><a href="/users/login">Login</a>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+     
+    </div>
+    <div class="col-lg-4">
+
+        <vc:tags-menu></vc:tags-menu>
+        <vc:new-posts></vc:new-posts>
+    </div>
+</div>
+<style>
+    .user-link {
+        text-decoration: none;
+        color: black;
+    }
+
+        .user-link:hover {
+            text-decoration: none; 
+            color: black; 
+        }
+</style>
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#btnComment").click(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("AddComment")',
+                    dataType: 'json',
+                    data: {
+                        PostId: $('#PostId').val(),
+                        UserName: $('#UserName').val(),
+                        Text: $('#Text').val(),
+                    },
+                    success: function (comment) {
+                        var date = new Date(comment.publishedOn);
+                        var commentHtml = `<div class="my-4 d-flex yorum-kutusu">
+                                                            <input type="hidden" id="${comment.CommentId}">
+                                                                    <img src="/img/@ViewData["CurrentUserImagePath"]" class="avatar float-start me-3 mr-3" style="width: 50px; height: 50px; object-fit: cover; object-position: center top; border-radius: 5px;" />
+                                                    <div>
+                                                        <div class="mb-2 d-flex">
+                                                            <h6 class="me-3">${comment.userName}</h6>
+                                                            <small class="ml-2">${date.toLocaleDateString()}</small>
+                                                                    
+                                                        </div>
+                                                        <p>${comment.text}</p>
+                                                    </div>
+                                                </div>`;
+
+                        $("#comments").append(commentHtml);
+                        $("#UserName").val('');
+                        $("#Text").val('');
+                        var count = parseInt($("#commentCount").text());
+                        $("#commentCount").text(count + 1);
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Yorum eklenirken bir hata oluştu: ' + error);
+                    }
+                });
+                return false;
+            });
+           
+          
+        });
+     
+
+    </script>
+}
+
+
+
+
+
